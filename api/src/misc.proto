@@ -1,0 +1,14 @@
+syntax = "proto3";
+package api;
+option go_package = "github.com/gitfort/goraz/api";
+
+message Void {
+}
+
+message Once {
+   string key = 1;
+}
+
+message Many {
+    string query = 1;
+}

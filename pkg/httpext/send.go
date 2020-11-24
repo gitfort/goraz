@@ -39,6 +39,7 @@ func SendModel(res http.ResponseWriter, req *http.Request, code int, model inter
 
 func SendData(res http.ResponseWriter, req *http.Request, code int, mime string, data []byte) {
 	res.Header().Set("Content-Type", mime)
+	res.Header().Set("Accept-Charset","utf-8")
 	res.WriteHeader(code)
 	_, _ = res.Write(data)
 }

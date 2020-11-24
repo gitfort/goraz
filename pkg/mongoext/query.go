@@ -24,11 +24,11 @@ var (
 	}
 )
 
-func ParseQuery(query odata.Query, withFilters, withSelects, withSorting, withPagination bool) (bson.M, *options.FindOptions) {
+func ParseQuery(query odata.Query) (bson.M, *options.FindOptions) {
 	rep := bson.M{}
 	opts := options.Find()
 
-	if filter, ok := query.Filters(); withFilters && ok {
+	if filter, ok := query.Filters(); ok {
 		for _, item := range filter {
 			value := returnValue(item)
 			if op := operates[item.Operator]; op != "" {
@@ -41,7 +41,7 @@ func ParseQuery(query odata.Query, withFilters, withSelects, withSorting, withPa
 		}
 	}
 
-	if selects, ok := query.Selects(); withSelects && ok {
+	if selects, ok := query.Selects(); ok {
 		p := bson.M{}
 		for _, item := range selects {
 			p[item] = 1
@@ -49,7 +49,7 @@ func ParseQuery(query odata.Query, withFilters, withSelects, withSorting, withPa
 		opts = opts.SetProjection(p)
 	}
 
-	if orderBy, ok := query.OrderBy(); withSorting && ok {
+	if orderBy, ok := query.OrderBy(); ok {
 		sort := 1
 		if orderBy.Sort == odata.SortDesc {
 			sort = -1
@@ -60,11 +60,11 @@ func ParseQuery(query odata.Query, withFilters, withSelects, withSorting, withPa
 		})
 	}
 
-	if top, ok := query.Top(); withPagination && ok {
+	if top, ok := query.Top();  ok {
 		opts = opts.SetLimit(int64(top))
 	}
 
-	if skip, ok := query.Skip(); withPagination && ok {
+	if skip, ok := query.Skip(); ok {
 		opts = opts.SetSkip(int64(skip))
 	}
 

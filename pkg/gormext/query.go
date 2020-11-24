@@ -20,10 +20,10 @@ var (
 	}
 )
 
-func ApplyQuery(db *gorm.DB, query odata.Query, withFilters, withSelects, withExtends, withSorting, withPagination bool) *gorm.DB {
+func ApplyQuery(db *gorm.DB, query odata.Query, withOpts bool) *gorm.DB {
 	res := db
 
-	if filter, ok := query.Filters(); withFilters && ok {
+	if filter, ok := query.Filters(); ok {
 		var stmt string
 		var args []interface{}
 		for _, item := range filter {
@@ -34,25 +34,25 @@ func ApplyQuery(db *gorm.DB, query odata.Query, withFilters, withSelects, withEx
 		res = res.Where(stmt, args...)
 	}
 
-	if selects, ok := query.Selects(); withSelects && ok {
+	if selects, ok := query.Selects(); withOpts && ok {
 		res = res.Select(selects)
 	}
 
-	if expands, ok := query.Expand(); withExtends && ok {
+	if expands, ok := query.Expand(); withOpts && ok {
 		for _, expand := range expands {
 			res = res.Preload(expand)
 		}
 	}
 
-	if orderBy, ok := query.OrderBy(); withSorting && ok {
+	if orderBy, ok := query.OrderBy(); withOpts && ok {
 		res = res.Order(fmt.Sprintf("%v %v", orderBy.Field, orderBy.Sort))
 	}
 
-	if top, ok := query.Top(); withPagination && ok {
+	if top, ok := query.Top(); withOpts && ok {
 		res = res.Limit(top)
 	}
 
-	if skip, ok := query.Skip(); withPagination && ok {
+	if skip, ok := query.Skip(); withOpts && ok {
 		res = res.Offset(skip)
 	}
 

@@ -2,10 +2,9 @@ package gormext
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/gitfort/goraz/pkg/odata"
 	"github.com/jinzhu/gorm"
+	"strings"
 )
 
 var (
@@ -21,10 +20,10 @@ var (
 	}
 )
 
-func ApplyQuery(db *gorm.DB, query odata.Query) *gorm.DB {
+func ApplyQuery(db *gorm.DB, query odata.Query, withFilters, withSelects, withExtends, withSorting, withPagination bool) *gorm.DB {
 	res := db
 
-	if filter, ok := query.Filters(); ok {
+	if filter, ok := query.Filters(); withFilters && ok {
 		var stmt string
 		var args []interface{}
 		for _, item := range filter {
@@ -35,26 +34,26 @@ func ApplyQuery(db *gorm.DB, query odata.Query) *gorm.DB {
 		res = res.Where(stmt, args...)
 	}
 
-	if orderBy, ok := query.OrderBy(); ok {
-		res = res.Order(fmt.Sprintf("%v %v", orderBy.Field, orderBy.Sort))
-	}
-
-	if selects, ok := query.Selects(); ok {
+	if selects, ok := query.Selects(); withSelects && ok {
 		res = res.Select(selects)
 	}
 
-	if top, ok := query.Top(); ok {
-		res = res.Limit(top)
-	}
-
-	if skip, ok := query.Skip(); ok {
-		res = res.Offset(skip)
-	}
-
-	if expands, ok := query.Expand(); ok {
+	if expands, ok := query.Expand(); withExtends && ok {
 		for _, expand := range expands {
 			res = res.Preload(expand)
 		}
+	}
+
+	if orderBy, ok := query.OrderBy(); withSorting && ok {
+		res = res.Order(fmt.Sprintf("%v %v", orderBy.Field, orderBy.Sort))
+	}
+
+	if top, ok := query.Top(); withPagination && ok {
+		res = res.Limit(top)
+	}
+
+	if skip, ok := query.Skip(); withPagination && ok {
+		res = res.Offset(skip)
 	}
 
 	return res

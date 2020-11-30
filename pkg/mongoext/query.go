@@ -36,7 +36,11 @@ func ParseQuery(query odata.Query) (bson.M, *options.FindOptions) {
 			}
 			rep[item.Field] = value
 			if item.Logical != "" {
-				rep = bson.M{logics[item.Logical]: rep}
+				var array bson.A
+				for key, val := range rep {
+					array = append(array, bson.M{key: val})
+				}
+				rep = bson.M{logics[item.Logical]: array}
 			}
 		}
 	}
